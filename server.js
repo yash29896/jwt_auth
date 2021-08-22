@@ -3,8 +3,9 @@ const app = express();
 const User = require("./models/user");
 const mongoose = require("mongoose");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
-mongoose.connect("mongodb://localhost:27017/test", {
+mongoose.connect("mongodb://localhost:27017/yash", {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
@@ -30,10 +31,19 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-    res.render("signup");
+  res.render("signup");
 });
-app.post("/signup", (req, res) => {
-    res.json(req.body);
+app.post("/signup", async (req, res) => {
+  const { name, emailid, password, contact } = req.body.user;
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const usr = await new User({
+    name,
+    emailid,
+    password: hashedPassword,
+    contact,
+  });
+  await usr.save();
+  res.render("details");
 });
 
 app.listen(3000, () => console.log("Server Started"));
