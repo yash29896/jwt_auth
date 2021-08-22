@@ -24,25 +24,19 @@ const verifyToken = async (req, res, next) => {
   const bearerHeader = req.headers["authorization"];
   if (typeof bearerHeader !== "undefined") {
     const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearer;
+    req.token = bearerToken;
     return next();
   } else {
-    res.redirect("/login");
+    res.sendStatus(403);
   }
 };
 
-//app.set("view engine", "ejs");
-//app.set("views", path.join(__dirname + "/views"));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-  
-app.get("/login", (req, res) => {
-  res.render("login");
-});
 
 app.post("/login", async (req, res) => {
-  const usr = await User.findOne({ emailid: req.body.user.emailid });
-  const isAuth = await bcrypt.compare(req.body.user.password, usr.password);
+  const usr = await User.findOne({ emailid: req.body.emailid });
+  if (!usr) return res.sendStatus(404);
+  const isAuth = await bcrypt.compare(req.body.password, usr.password);
   if (isAuth) {
     jwt.sign({ usr }, process.env.ACCESS_TOKEN_SECRET, (err, token) => {
       res.json({ token });
@@ -60,11 +54,8 @@ app.get("/details", verifyToken, async (req, res) => {
   });
 });
 
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
 app.post("/signup", async (req, res) => {
-  const { name, emailid, password, contact } = req.body.user;
+  const { name, emailid, password, contact } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);
   const usr = await new User({
     name,
@@ -73,7 +64,7 @@ app.post("/signup", async (req, res) => {
     contact,
   });
   await usr.save();
-  res.render("details");
+  res.sendStatus(200);
 });
 
 app.listen(3000, () => console.log("Server Started"));
