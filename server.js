@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
-mongoose.connect("mongodb://localhost:27017/yash", {
+mongoose.connect("mongodb+srv://ya17kun:feEm2eBzBX9q5U4B@cluster0.pqshj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
